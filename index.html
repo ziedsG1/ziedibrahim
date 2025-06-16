@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - Comments</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #111;
+      color: #0f0;
+      display: flex;
+      height: 100vh;
+      justify-content: center;
+      align-items: center;
+    }
+    .box {
+      padding: 20px;
+      border: 1px solid #0f0;
+    }
+    input, button {
+      font-size: 1.2rem;
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Enter your nickname</h2>
+    <input type="text" id="nickname" placeholder="Nickname" />
+    <button onclick="login()">Start Chat</button>
+  </div>
+
+  <script>
+    function login() {
+      const nick = document.getElementById('nickname').value.trim();
+      if (nick) {
+        localStorage.setItem('nickname', nick);
+        window.location.href = 'comments.html';
+      } else {
+        alert("Please enter a nickname");
+      }
+    }
+  </script>
+</body>
+</html>

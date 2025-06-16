@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comments Online</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #000;
+      color: #00ff41;
+      font-family: 'VT323', monospace;
+      margin: 0;
+      padding: 1rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 1rem;
+      border: 1px solid #00ff41;
+      border-radius: 8px;
+      background: rgba(0, 20, 0, 0.3);
+      box-shadow: 0 0 20px #00ff41;
+    }
+    h1 {
+      text-align: center;
+      text-shadow: 0 0 10px #00ff41;
+    }
+    #commentList {
+      margin-bottom: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .comment {
+      border-bottom: 1px dashed #00ff41;
+      padding: 0.5rem 0;
+    }
+    .nickname {
+      font-weight: bold;
+    }
+    textarea {
+      width: 100%;
+      padding: 1rem;
+      background: #010;
+      color: #00ff41;
+      border: 1px solid #00ff41;
+      font-family: 'VT323', monospace;
+      font-size: 1.2rem;
+    }
+    button {
+      margin-top: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 1.2rem;
+      background: transparent;
+      color: #00ff41;
+      border: 2px solid #00ff41;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #00ff41;
+      color: #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Real-Time Comments</h1>
+    <div id="commentList"></div>
+    <textarea id="commentInput" placeholder="Type your comment here..."></textarea>
+    <button onclick="sendComment()">Send</button>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const firebaseConfig = {
+        apiKey: "AIzaSyAxuBmXdjK2r4kXhsDcRUVg7jo_QLOY7ng",
+        authDomain: "commentsonline-c823b.firebaseapp.com",
+        projectId: "commentsonline-c823b",
+        storageBucket: "commentsonline-c823b.appspot.com",
+        messagingSenderId: "31117777800",
+        appId: "1:31117777800:web:2d4825d042bf43f61a783d",
+        measurementId: "G-VGWCWPC6G4"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+
+      const commentList = document.getElementById('commentList');
+      const commentInput = document.getElementById('commentInput');
+      const nickname = localStorage.getItem('nickname') || 'Anonymous';
+
+      db.collection('comments').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+        commentList.innerHTML = '';
+        snapshot.forEach(doc => {
+          const data = doc.data();
+          const div = document.createElement('div');
+          div.className = 'comment';
+          div.innerHTML = `<span class="nickname">${escapeHtml(data.nick)}:</span> ${escapeHtml(data.text)}`;
+          commentList.appendChild(div);
+        });
+      });
+
+      window.sendComment = function () {
+        const text = commentInput.value.trim();
+        if (!text) {
+          alert('Please write something');
+          return;
+        }
+
+        db.collection('comments').add({
+          nick: nickname,
+          text: text,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+          commentInput.value = '';
+        }).catch(err => {
+          alert('Failed to send comment: ' + err.message);
+        });
+      };
+
+      function escapeHtml(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+      }
+    });
+  </script>
+</body>
+</html>
